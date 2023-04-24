@@ -22,10 +22,6 @@ public class Main extends JFrame {
 	private JPanel contentPane;
 	
 	private JButton[][] botones;
-	private JButton temporal;
-	
-	private int numeroSeleccion = 1;
-	private int primerBotonX, primerBotonY;
 	
 	private int[] numerosAleatorios = new int[16];
 	
@@ -55,15 +51,49 @@ public class Main extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 658, 616);
 		contentPane = new JPanel();
-		contentPane.setBackground(new Color(255, 128, 255));
+		contentPane.setBackground(Color.decode("#320139"));
 		contentPane.setBorder(new EmptyBorder(50, 50, 50, 50));
 		
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
 		
 		JPanel panel = new JPanel();
+		panel.setBackground(Color.decode("#333e50"));
 		contentPane.add(panel, BorderLayout.CENTER);
-		panel.setLayout(new GridLayout(4, 4));
+		panel.setLayout(new GridLayout(4, 4, 5, 5));
+		
+		JPanel panelReiniciar = new JPanel();
+		panelReiniciar.setBackground(Color.decode("#320139"));
+		contentPane.add(panelReiniciar, BorderLayout.SOUTH);
+		
+		JButton reiniciar = new JButton("Reiniciar");
+		reiniciar.setBackground(Color.decode("#f1debd"));
+		panelReiniciar.add(reiniciar);
+		
+		reiniciar.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				lista.reiniciarLista();
+				lista.desplegarLista();
+				
+				int aux = 0;
+				
+				for (int i = 0; i < 4; i++) {
+					for (int j = 0; j < 4; j++) {
+						botones[j][i].setText(""+numerosAleatorios[aux++]);
+						botones[j][i].setBackground(Color.decode("#f1debd"));
+						
+						if(botones[j][i].getText().equals("16")) {
+							botones[j][i].setText("");
+						}
+
+					}
+				}
+			}
+			
+		});
 		
 		botones = new JButton[4][4];
 		
@@ -74,7 +104,7 @@ public class Main extends JFrame {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				botones[j][i] = new JButton(""+numerosAleatorios[aux++]);
-				botones[j][i].setBackground(Color.white);
+				botones[j][i].setBackground(Color.decode("#f1debd"));
 				
 				if(botones[j][i].getText().equals("16")) {
 					botones[j][i].setText("");
@@ -237,7 +267,7 @@ public class Main extends JFrame {
 			}
 		}
 		
-		public boolean cambiarLugar(int x, int y, int x2, int y2) {
+		public int cambiarLugar(int x, int y) {
 			P = Head;
 			int contY = 0;
 			while(contY != y) {
@@ -250,99 +280,124 @@ public class Main extends JFrame {
 				P = P.Derecha;
 				contX++;
 			}
+
 			
-			Q = Head;
-			int contY2 = 0;
-			while(contY2 != y2) {
-				Q = Q.Abajo;
-				contY2++;
-			}
-			
-			int contX2 = 0;
-			while(contX2 != x2) {
-				Q = Q.Derecha;
-				contX2++;
-			}
-			
-			System.out.println(Q.dato);
-			
-			if(Q.dato == 16 &&
-					(P.Derecha != null && P.Derecha.dato == Q.dato ||
-					P.Abajo != null && P.Abajo.dato == Q.dato ||
-					P.Izquierda != null && P.Izquierda.dato == Q.dato ||
-					P.Arriba != null && P.Arriba.dato == Q.dato)) {
+			if(P.Derecha != null && P.Derecha.dato == 16) {
 				
-				System.out.println("si1");
+				System.out.println("si der");
+
+				int aux = P.dato;
+
+				P.dato = 16;
+				P.Derecha.dato = aux;
+
+				return 1;
+				
+			}else if(P.Abajo != null && P.Abajo.dato == 16) {
+				
+				System.out.println("si abj");
 				
 				int aux = P.dato;
 				
 				P.dato = 16;
-				Q.dato = aux;
+				P.Abajo.dato = aux;
 				
-				return true;
-			}else if(P.dato == 16 &&
-					(P.Derecha != null && P.Derecha.dato == Q.dato ||
-					P.Abajo != null && P.Abajo.dato == Q.dato ||
-					P.Izquierda != null && P.Izquierda.dato == Q.dato ||
-					P.Arriba != null && P.Arriba.dato == Q.dato)) {
-				System.out.println("si2");
+				return 2;
+			}else if(P.Izquierda != null && P.Izquierda.dato == 16) {
+				
+				System.out.println("si izq");
 				
 				int aux = P.dato;
 				
-				P.dato = Q.dato;
-				Q.dato = aux;
-				return true;
+				P.dato = 16;
+				P.Izquierda.dato = aux;
+				
+				return 3;
+			}else if(P.Arriba != null && P.Arriba.dato == 16) {
+				
+				System.out.println("si arr");
+				
+				int aux = P.dato;
+				
+				P.dato = 16;
+				P.Arriba.dato = aux;
+				
+				return 4;
 			}else {
 				System.out.println("no");
-				return false;
+				return 0;
 			}
 //			
 		}
+
+		public void reiniciarLista(){	
+
+			ordenAleatorio();
+			
+			int aux = 0;
+			
+			if (Head != null){
+				Q = Head;
+				while( Q != null)//renglon
+				{
+					P = Q;
+					while(P != null)//columna
+					{
+						P.dato = numerosAleatorios[aux++];
+						P = P.Derecha;
+					}
+					Q = Q.Abajo;
+				}
+			}
+
+		}
+		
 	}
 	
 	void agregarAccion(final JButton boton,  int x,  int y) {
         boton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evento) {
-
+            	String aux = botones[x][y].getText();
             	
-            	if(numeroSeleccion == 1) {
-            		primerBotonX = x;
-            		primerBotonY = y;
+            	switch(lista.cambiarLugar(x, y)) {
+            	
+            	case 1:
             		
-            		temporal = boton;
-            		boton.setBackground(Color.green);
-            	}else {
 
-            		if(lista.cambiarLugar(primerBotonX, primerBotonY,
-            							  x, y)) {
-            			String aux = botones[primerBotonX][primerBotonY].getText();
-            			
-            			botones[primerBotonX][primerBotonY].setText(botones[x][y].getText());
-            			botones[x][y].setText(aux);
-            		}
-            		temporal.setBackground(Color.white);
-            		lista.desplegarLista();
+            		botones[x][y].setText(botones[x+1][y].getText());
+            		botones[x+1][y].setText(aux);
+            		
+            		break;
+            	case 2:
+
+            		botones[x][y].setText(botones[x][y+1].getText());
+            		botones[x][y+1].setText(aux);
+            		
+            		break;
+            	case 3:
+            		
+            		botones[x][y].setText(botones[x-1][y].getText());
+            		botones[x-1][y].setText(aux);
+            		
+            		break;
+            	case 4:
+            		botones[x][y].setText(botones[x][y-1].getText());
+            		botones[x][y-1].setText(aux);
+            		
+            		break;
+
             	}
-            	
+            	lista.desplegarLista();
+
+
             	if(lista.compararListas(listaComparativa)) {
             		System.out.println("ganas!!!!!!!!!!!!!");
-                	JOptionPane.showMessageDialog(contentPane, "El Jugador gana","Victoria", JOptionPane.INFORMATION_MESSAGE);
+            		JOptionPane.showMessageDialog(contentPane, "El Jugador gana","Victoria", JOptionPane.INFORMATION_MESSAGE);
             	}
-            	
-            	cambiarSeleccion();
 
             }
         });
 	}
-	
-	void cambiarSeleccion(){
-		
-        if(numeroSeleccion == 1){
-            numeroSeleccion = 2;
-        }else{
-            numeroSeleccion = 1;
-        }
-    }
 	
 	void ordenAleatorio() {
 		Random rand = new Random();
@@ -369,6 +424,7 @@ public class Main extends JFrame {
 		for (int num : nums) {
 			numerosAleatorios[aux2++] = num;
 		}
+		
 		// pone los numeros en orden
 //		int aux2 = 0;
 //		
